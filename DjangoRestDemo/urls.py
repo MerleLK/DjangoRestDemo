@@ -20,4 +20,5 @@ from quickstart.urls import router
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'/', include(router.urls)),
+    url(r'/', include('snippets.urls'))
 ]
