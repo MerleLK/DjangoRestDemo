@@ -8,6 +8,7 @@ from django.http import Http404
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+# from rest_framework import mixins, generics
 
 
 class SnippetList(APIView):
@@ -56,3 +57,31 @@ class SnippetDetail(APIView):
         snippet = self.get_object(pk)
         snippet.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# if you use the rest framework's mixins module.
+# class SnippetList(mixins.ListModelMixin,
+#                   mixins.CreateModelMixin,
+#                   generics.GenericAPIView):
+#     queryset = Snippet.objects.all()
+#     serializer_class = SnippetSerializer
+#
+#     def get(self, request, *args, **kwargs):
+#         return self.list(request, *args, **kwargs)
+#
+#     def post(self, request, *args, **kwargs):
+#         return self.create(request, *args, **kwargs)
+
+"""
+    We can more let the code more less.
+"""
+
+
+# class SnippetList(generics.ListCreateAPIView):
+#     queryset = Snippet.objects.all()
+#     serializer_class = SnippetSerializer
+#
+#
+# class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = Snippet.objects.all()
+#     serializer_class = SnippetSerializer
