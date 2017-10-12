@@ -22,3 +22,7 @@ urlpatterns = [
     url(r'/', include(router.urls)),
     url(r'/', include('snippets.urls'))
 ]
+urlpatterns += [
+    url(r'^my_auth/', include('rest_framework.urls',
+                              namespace='rest_framework')),
+]
