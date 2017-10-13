@@ -16,11 +16,13 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from quickstart.urls import router
+from simpleDemo.urls import simple_router
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'/', include(router.urls)),
-    url(r'/', include('snippets.urls'))
+    url(r'/', include('snippets.urls')),
+    url(r'^simple/', include(simple_router.urls))
 ]
 urlpatterns += [
     url(r'^my_auth/', include('rest_framework.urls',
