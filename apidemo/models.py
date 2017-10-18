@@ -34,3 +34,7 @@ class Event(models.Model):
     )
     room_number = models.IntegerField()
     date = models.DateField()
+
+
+class GameRecord(models.Model):
+    score = models.IntegerField()

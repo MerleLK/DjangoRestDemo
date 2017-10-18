@@ -1,19 +1,19 @@
 """
     This is the serializes from the model....
 """
-from random import choices
-from datetime import datetime
+# from random import choices
+# from datetime import datetime
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from rest_framework.response import Response
 from apidemo import models
 
 
-class Comment:
-    def __init__(self, email, content, created=None):
-        self.email = email
-        self.content = content
-        self.created = created or datetime.now()
+# class Comment:
+#     def __init__(self, email, content, created=None):
+#         self.email = email
+#         self.content = content
+#         self.created = created or datetime.now()
 
 
 class CommentSerializer(serializers.Serializer):
@@ -96,7 +96,7 @@ class EventSerializer(serializers.Serializer):
 
 
 # you can do divide the validations.
-def mutiple_of_ten(value):
+def multiple_of_ten(value):
     if value % 10 != 0:
         raise serializers.ValidationError("Not a multiple of ten")
 
@@ -118,12 +118,58 @@ class GameRecordSerializer(serializers.Serializer):
     In [7]: seri.errors
     Out[7]: ReturnDict([('score', ['Not a multiple of ten'])])
     """
-
-    score = serializers.IntegerField(validators=[mutiple_of_ten])
+    score = serializers.IntegerField(validators=[multiple_of_ten])
 
     def create(self, validated_data):
-        return Comment(**validated_data)
+        record = models.GameRecord(**validated_data)
+        record.save()
+        return record
 
     def update(self, instance, validated_data):
         instance.score = validated_data.get('score', instance.score)
         return instance
+
+    class Meta:
+        model = models.GameRecord
+        fields = "__all__"
+
+
+class ContactFormSerializer(serializers.Serializer):
+    """
+        you can override the .save() function.
+    """
+    email = serializers.EmailField()
+    message = serializers.CharField(max_length=100)
+
+    def save(self, **kwargs):
+        email = self.validated_data["email"]
+        message = self.validated_data["message"]
+        self.send_email(resource=email, message=message)
+
+    def send_email(self, resource, message):
+        pass
+
+
+class UserSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    username = serializers.CharField(
+        max_length=30,
+    )
+
+
+class EditItemSerializer(serializers.Serializer):
+    pass
+
+
+class PosterSerializer(serializers.Serializer):
+    user = UserSerializer()   # if this will be None,  add (required=False)
+    edits = EditItemSerializer(many=True)  # if edits is a list, should add param (many=True)
+
+    content = serializers.CharField(
+        max_length=120,
+    )
+    created = serializers.DateTimeField()
+
+
+class Test(serializers.ModelSerializer):
+    pass

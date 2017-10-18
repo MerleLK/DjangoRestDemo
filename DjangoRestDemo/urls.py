@@ -17,14 +17,18 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from quickstart.urls import router
 from simpleDemo.urls import simple_router
+from apidemo.urls import api_urls
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'/', include(router.urls)),
     url(r'/', include('snippets.urls')),
-    url(r'^simple/', include(simple_router.urls))
 ]
 urlpatterns += [
     url(r'^my_auth/', include('rest_framework.urls',
                               namespace='rest_framework')),
 ]
+urlpatterns += router.urls
+urlpatterns += simple_router.urls
+urlpatterns += api_urls
+print(urlpatterns)
