@@ -1,19 +1,10 @@
 """
     This is the serializes from the model....
 """
-# from random import choices
-# from datetime import datetime
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 from rest_framework.response import Response
 from apidemo import models
-
-
-# class Comment:
-#     def __init__(self, email, content, created=None):
-#         self.email = email
-#         self.content = content
-#         self.created = created or datetime.now()
 
 
 class CommentSerializer(serializers.Serializer):
@@ -63,17 +54,6 @@ class EventSerializer(serializers.Serializer):
     name = serializers.CharField()
     room_number = serializers.ChoiceField(choices=[101, 102, 103, 201])
     date = serializers.DateField()
-
-    # def validate(self, data):
-    #     """
-    #     This is the object_level validation.
-    #     Check the start is before the stop.
-    #     :param data: input data
-    #     :return: input data
-    #     """
-    #     if data['start'] > data['finish']:
-    #         raise serializers.ValidationError("finish must occur after start.")
-    #     return data
 
     class Meta:
         """ validate the room_number only has one event per day """
@@ -134,42 +114,45 @@ class GameRecordSerializer(serializers.Serializer):
         fields = "__all__"
 
 
-class ContactFormSerializer(serializers.Serializer):
-    """
-        you can override the .save() function.
-    """
-    email = serializers.EmailField()
-    message = serializers.CharField(max_length=100)
+class MoneyAmountField(serializers.Field):
+    def to_internal_value(self, data):
+        # to in
+        pass
 
-    def save(self, **kwargs):
-        email = self.validated_data["email"]
-        message = self.validated_data["message"]
-        self.send_email(resource=email, message=message)
-
-    def send_email(self, resource, message):
+    def to_representation(self, value):
+        # to out
         pass
 
 
-class UserSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    username = serializers.CharField(
-        max_length=30,
-    )
+class AccountSerializer(serializers.ModelSerializer):
+    amount = MoneyAmountField(source="pur_amount")
+
+    class Meta:
+        model = models.Account
 
 
-class EditItemSerializer(serializers.Serializer):
-    pass
+class BookListSerializer(serializers.ListSerializer):
+    def update(self, instance, validated_data):
+        book_mapping = {book.id: book for book in instance}
+        data_mapping = {item['id']: item for item in validated_data}
+
+        ret = []
+        for book_id, data in data_mapping.items():
+            book = book_mapping.get(book_id, None)
+            if book is None:
+                ret.append(self.child.create(data))
+            else:
+                ret.append(self.child.update(book, data))
+
+        for book_id, book in book_mapping.items():
+            if book_id not in data_mapping:
+                book.delete()
+
+        return ret
 
 
-class PosterSerializer(serializers.Serializer):
-    user = UserSerializer()   # if this will be None,  add (required=False)
-    edits = EditItemSerializer(many=True)  # if edits is a list, should add param (many=True)
+class BookSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
 
-    content = serializers.CharField(
-        max_length=120,
-    )
-    created = serializers.DateTimeField()
-
-
-class Test(serializers.ModelSerializer):
-    pass
+    class Meta:
+        list_serializer_class = BookListSerializer

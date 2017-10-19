@@ -38,3 +38,7 @@ class Event(models.Model):
 
 class GameRecord(models.Model):
     score = models.IntegerField()
+
+
+class Account(models.Model):
+    pur_amount = models.IntegerField()
